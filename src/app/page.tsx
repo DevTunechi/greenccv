@@ -1,6 +1,6 @@
 'use client';
 
-import { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { toPng } from 'html-to-image';
@@ -19,9 +19,11 @@ export default function GreenCCVPage() {
   const [countdown, setCountdown] = useState(15);
   const [showCopyNote, setShowCopyNote] = useState(false);
   const [showSupportModal, setShowSupportModal] = useState(false);
-  const [expiryInput, setExpiryInput] = useState('2031-11'); 
-  const [cvv, setCvv] = useState('443');
-  const [balance, setBalance] = useState('₦3,200,000.00');
+  
+  // RESET TO ZERO/EMPTY STATES
+  const [expiryInput, setExpiryInput] = useState(''); 
+  const [balance, setBalance] = useState('₦0.00');
+  const [cvv, setCvv] = useState('000');
 
   const {
     selectedBank,
@@ -32,11 +34,28 @@ export default function GreenCCVPage() {
     handleGenerate
   } = useCardGenerator();
 
+  // FIX: DEFERRED CVV GENERATION TO PREVENT SYNCHRONOUS SETSTATE ERROR
   useEffect(() => {
-    setCvv(Math.floor(Math.random() * 899 + 100).toString());
+    let timer: NodeJS.Timeout;
+    if (cardNumber && cardNumber !== "0000 0000 0000 0000") {
+      timer = setTimeout(() => {
+        // Deterministic hash-based CVV generation to keep it consistent with the number
+        const seed = cardNumber.replace(/\s/g, '');
+        const hash = seed.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+        setCvv((100 + (hash % 899)).toString());
+      }, 0);
+    } else {
+      timer = setTimeout(() => {
+        setCvv("000");
+      }, 0);
+    }
+    return () => clearTimeout(timer);
   }, [cardNumber]);
 
-  useEffect(() => { setCardHolder(""); }, [setCardHolder]);
+  // Ensure card holder starts empty on mount
+  useEffect(() => { 
+    setCardHolder(""); 
+  }, [setCardHolder]);
 
   // Countdown timer logic
   useEffect(() => {
@@ -65,8 +84,10 @@ export default function GreenCCVPage() {
     confetti({ particleCount: 150, spread: 70, origin: { y: 0.6 }, colors: ['#10b981'] });
 
     try {
-      const [year, month] = expiryInput.split('-');
-      const displayExpiry = `${month}/${year.slice(-2)}`;
+      const displayExpiry = expiryInput 
+        ? `${expiryInput.split('-')[1]}/${expiryInput.split('-')[0].slice(-2)}` 
+        : '00/00';
+
       const dataUrl = await toPng(cardRef.current, { cacheBust: true, pixelRatio: 4, backgroundColor: 'transparent' });
       localStorage.setItem('pending_download', dataUrl);
       await copyToClipboard(`Bank: ${selectedBank.name}\nCard: ${cardNumber}\nHolder: ${cardHolder}\nExp: ${displayExpiry}\nCVV: ${cvv}\nBalance: ${balance}`);
@@ -92,7 +113,6 @@ export default function GreenCCVPage() {
                 <h2 className="text-6xl font-black text-white tabular-nums">{countdown}s</h2>
               </div>
 
-              {/* Countdown Ad Space */}
               <div 
                 onClick={() => handleAdClick('https://your-ad-link.com')}
                 className="w-full aspect-video bg-zinc-900 border border-zinc-800 rounded-3xl flex flex-col items-center justify-center p-8 cursor-pointer hover:border-emerald-500/50 transition-all group"
@@ -155,9 +175,9 @@ export default function GreenCCVPage() {
           <div ref={cardRef} className="w-full overflow-hidden rounded-2xl">
             <VerveCard 
               bank={selectedBank} 
-              number={cardNumber || "4022 3733 1234 3601"} 
-              name={cardHolder || "DUDU IFAKO"} 
-              expiry={expiryInput.split('-').reverse().join('/')} 
+              number={cardNumber || "0000 0000 0000 0000"} 
+              name={cardHolder || "NAME ON CARD"} 
+              expiry={expiryInput ? expiryInput.split('-').reverse().join('/') : "00/00"} 
               cvv={cvv} 
               balance={balance} 
             />
@@ -184,7 +204,6 @@ export default function GreenCCVPage() {
           </header>
 
           <div className="space-y-6 bg-white p-2 rounded-3xl">
-            {/* IN-CONFIG AD */}
             <div 
               onClick={() => handleAdClick('https://another-ad.com')}
               className="w-full p-4 bg-zinc-900 rounded-2xl flex items-center justify-between cursor-pointer group"

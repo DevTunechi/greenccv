@@ -12,7 +12,6 @@ interface CardProps {
 }
 
 export default function VerveCardFront({ bank, number, name, expiry, cvv, balance }: CardProps) {
-  // Use First Bank branding as the default/reference point
   const bankName = bank.id === 'firstbank' ? 'FIRST BANK' : bank.name.toUpperCase();
   const textColor = bank.textColor;
 
@@ -20,10 +19,8 @@ export default function VerveCardFront({ bank, number, name, expiry, cvv, balanc
     <div className="relative w-full max-w-md aspect-[1.586/1] shadow-[0_30px_60px_-15px_rgba(0,0,0,0.3)] rounded-2xl p-8 overflow-hidden select-none"
       style={{ backgroundColor: bank.primaryColor || '#013D5A' }}
     >
-      {/* Subtle Texture Layer (Carbon Fiber) */}
+      {/* Texture & Gloss Layers */}
       <div className="absolute inset-0 opacity-20 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] mix-blend-overlay" />
-      
-      {/* Gloss Layer */}
       <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10" />
 
       <div className="relative z-10 h-full flex flex-col justify-between">
@@ -38,7 +35,7 @@ export default function VerveCardFront({ bank, number, name, expiry, cvv, balanc
           </div>
         </div>
 
-        {/* Balance (Visible only if balance is set) */}
+        {/* Balance Display */}
         {balance && balance !== '₦0.00' && (
           <div className="absolute top-16 right-8 text-right opacity-80">
             <p className="text-[8px] font-black uppercase tracking-widest" style={{ color: textColor }}>Available Balance</p>
@@ -46,43 +43,46 @@ export default function VerveCardFront({ bank, number, name, expiry, cvv, balanc
           </div>
         )}
 
-        {/* EMV Chip & Number Section */}
+        {/* Chip & Card Number */}
         <div className="flex items-end gap-6">
           <div className="w-14 h-10 bg-gradient-to-br from-yellow-200 via-yellow-500 to-yellow-700 rounded shadow-inner relative overflow-hidden">
              <div className="absolute inset-0 opacity-20 border-[0.5px] border-black/30" />
           </div>
           
-          {/* Card Number (Responsive Single Line) */}
           <motion.p 
             key={number}
-            initial={{ opacity: 0, y: 5 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="text-[clamp(1.1rem,4.5vw,1.875rem)] font-mono tracking-[0.12em] drop-shadow-lg leading-none whitespace-nowrap overflow-hidden text-ellipsis" 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-[clamp(1.1rem,4.5vw,1.875rem)] font-mono tracking-[0.12em] drop-shadow-lg leading-none whitespace-nowrap overflow-hidden" 
             style={{ color: textColor }}
           >
-            {number || "4022 3733 1234 3601"}
+            {number || "0000 0000 0000 0000"}
           </motion.p>
         </div>
         
-        {/* Identity, Expiry & CVV */}
+        {/* Bottom Section: Name, Expiry, CVV */}
         <div className="flex justify-between items-end uppercase tracking-widest" style={{ color: textColor }}>
           <div className="space-y-1">
             <p className="opacity-60 text-[7px] font-black leading-none">Card Holder</p>
-            <p className="text-sm font-black tracking-tighter leading-none">{name || 'DUDU IFAKO'}</p>
+            <p className="text-sm font-black tracking-tighter leading-none min-h-[1.25rem]">{name || "NAME ON CARD"}</p>
           </div>
           
-          {/* Expiry and Front CVV */}
           <div className="flex items-end gap-5">
              <div className="text-right space-y-1">
                 <p className="opacity-60 text-[7px] font-black leading-none">Expires</p>
-                <p className="text-sm font-black tracking-tight leading-none">{expiry || '11/2031'}</p>
+                <p className="text-sm font-black tracking-tight leading-none">{expiry || '00/00'}</p>
              </div>
              
-             {/* CVV placed on front */}
-             <div className="p-2 border border-dashed border-zinc-200 rounded-lg text-center min-w-10">
-                <p className="font-mono italic font-bold text-sm tracking-widest leading-none drop-shadow-md">
-                   {cvv}
-                </p>
+             {/* CVV DISPLAY ON FRONT */}
+             <div className="flex flex-col items-center">
+                <div 
+                  className="px-3 py-1.5 border rounded-lg bg-black/10 backdrop-blur-sm min-w-[45px] flex items-center justify-center"
+                  style={{ borderColor: `${textColor}40` }} // Sets border color to 40% opacity of text color
+                >
+                  <p className="font-mono italic font-bold text-sm tracking-[0.15em] leading-none drop-shadow-md" style={{ color: textColor }}>
+                    {cvv}
+                  </p>
+                </div>
                 <p className="opacity-60 text-[6px] font-black mt-1">CVV</p>
              </div>
           </div>
