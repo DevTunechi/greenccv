@@ -193,5 +193,41 @@ export const NIGERIAN_BANKS: BankTheme[] = [
     textColor: '#FFFFFF',
     bins: ['506116', '405367'],
     logoType: 'text',
-  }
+  },
+  {
+    id: 'globus',
+  name: 'Globus Bank',
+  primaryColor: '#6B0000',
+  secondaryColor: '#FFFFFF',
+  textColor: '#FFFFFF',
+  bins: ['506158', '539941'],
+  logoType: 'text',
+},
+{
+  id: 'vfd',
+  name: 'VFD Bank',
+  primaryColor: '#B42025',
+  secondaryColor: '#1A1A1A',
+  textColor: '#FFFFFF',
+  bins: ['506145'],
+  logoType: 'text',
+},
+{
+  id: 'premiumtrust',
+  name: 'PremiumTrust',
+  primaryColor: '#004A3C',
+  secondaryColor: '#D4AF37',
+  textColor: '#FFFFFF',
+  bins: ['506177'],
+  logoType: 'text',
+},
+{
+  id: 'lotus',
+  name: 'Lotus Bank',
+  primaryColor: '#144734',
+  secondaryColor: '#FFFFFF',
+  textColor: '#FFFFFF',
+  bins: ['506180'],
+  logoType: 'text',
+}
 ];
